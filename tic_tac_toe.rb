@@ -24,6 +24,17 @@ class Board
   "
   end
 
+  def check_winner
+
+  end
+
+  def remaining_options
+    status.keys.select {|position| status[position] == ' '}
+  end
+end
+
+class Square
+  
 end
 
 class Player
@@ -34,14 +45,6 @@ class Player
   end
 end
 
-class Computer < Player
-
-end
-
-class Human < Player
-
-
-end
 
 class Game
   attr_reader :player, :computer, :board
@@ -71,7 +74,7 @@ class Game
     puts "Welcome to Tic Tac Toe."
     puts "What's your name?"
     name = gets.chomp
-    @player = Human.new(name)    
+    @human = Player.new(name)    
     
     computer_names = ['Hal', 'R2D2', 'Data', 'C3PO', 'Watson']
     @computer = Computer.new(computer_names.sample)
