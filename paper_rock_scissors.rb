@@ -12,7 +12,11 @@ class Hand
   def <=>(other_hand)
     if @value == other_hand.value
       0
-    elsif (@value == 'p' && other_hand.value == 'r') || (@value == 'r' && other_hand.value == 's') || (@value == 's' && other_hand.value == 'p')
+    elsif @value == 'p' && other_hand.value == 'r' 
+      1
+    elsif @value == 'r' && other_hand.value == 's'
+      1
+    elsif @value == 's' && other_hand.value == 'p'
       1
     else
       -1
@@ -39,7 +43,7 @@ class Player
     @name = name
   end
 
-  def to_s
+  def selected_value_to_s
     "#{name} chose #{Game::CHOICES[self.hand.value]}"
   end
 end
@@ -95,8 +99,8 @@ class Game
       system 'clear'
       player.pick_hand
       computer.pick_hand
-      puts player
-      puts computer
+      puts player.selected_value_to_s
+      puts computer.selected_value_to_s
       compare_hands
       puts "Do you want to play again? (y/n)"
       continue = gets.chomp
