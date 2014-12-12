@@ -12,27 +12,28 @@ class Board
   end
 
   def draw
-  system 'clear'
-  puts "
-             |     |
-          #{status[1]}  |  #{status[2]}  |  #{status[3]}  
-        _____|_____|_____
-             |     |
-          #{status[4]}  |  #{status[5]}  |  #{status[6]}  
-        _____|_____|_____
-             |     |
-          #{status[7]}  |  #{status[8]}  |  #{status[9]}
-             |     |
-  "
+    system 'clear'
+    puts "
+               |     |
+            #{status[1]}  |  #{status[2]}  |  #{status[3]}  
+          _____|_____|_____
+               |     |
+            #{status[4]}  |  #{status[5]}  |  #{status[6]}  
+          _____|_____|_____
+               |     |
+            #{status[7]}  |  #{status[8]}  |  #{status[9]}
+               |     |
+    "
   end
 
   def check_winner(board_status)
-   Board::WINNING_COMBOS.each do |combo|
-      return 'Player' if board_status.values_at(*combo).count('X') == 3
-      return 'Computer' if board_status.values_at(*combo).count('O') == 3
-      return 'Tie' if remaining_options == []
+    winner = nil
+    Board::WINNING_COMBOS.each do |combo|
+      winner = 'Player'   if board_status.values_at(*combo).count('X') == 3
+      winner = 'Computer' if board_status.values_at(*combo).count('O') == 3
+      winner = 'Tie'      if remaining_options == []
     end
-    return nil
+    return winner
   end
 
   def remaining_options
@@ -41,44 +42,46 @@ class Board
 end
 
 class Player
-  attr_reader :name
+  attr_accessor :name
 
-  def initialize(name)
-    @name = name
+  def initialize(name = nil)
+    @name = name if name
   end
 end
 
 class Computer < Player
   def make_move(board_status, remaining_options)
+    move = nil
     Board::WINNING_COMBOS.each do |combo|
 
       if board_status.values_at(*combo).count('O') == 2
         if board_status[combo[0]] == ' '
-          return combo[0]
+          move = combo[0]
         elsif board_status[combo[1]] == ' '
-          return combo[1]
+          move = combo[1]
         elsif board_status[combo[2]] == ' '
-          return combo[2]
-        end
-      end
-
-      if board_status.values_at(*combo).count('X') == 2
+          move = combo[2]
+        end 
+      
+      elsif move == nil && board_status.values_at(*combo).count('X') == 2
         if board_status[combo[0]] == ' '
-          return combo[0]
+          move = combo[0]
         elsif board_status[combo[1]] == ' '
-          return combo[1]
+          move = combo[1]
         elsif board_status[combo[2]] == ' '
-          return combo[2]
+          move = combo[2]
         end
       end
     end
-        
-    if board_status[5] == ' '
-      return 5
-    else
-      return remaining_options.sample
+    
+    if move == nil && board_status[5] == ' '
+      move = 5
+    elsif move == nil
+       move = remaining_options.sample
     end
-  end
+
+    return move
+  end  
 end
 
 class Human < Player
@@ -92,20 +95,23 @@ class Human < Player
 end
 
 class Game
-  attr_reader :player, :computer, :board
+  attr_reader :player, :computer, :board, :score
   
   def initialize
+    @player = Human.new
+    @computer = Computer.new
+    @board = ''
     @score = {player: 0, computer: 0, tie: 0}
   end 
 
   def update_score(winner)
     case winner
     when 'Player'
-      @score[:player] += 1
+      score[:player] += 1
     when 'Computer'
-      @score[:computer] += 1
+      score[:computer] += 1
     when 'Tie'
-      @score[:tie] += 1
+      score[:tie] += 1
     end
   end 
 
@@ -125,33 +131,40 @@ class Game
     puts "Welcome to Tic Tac Toe."
     puts "What's your name?"
     name = gets.chomp
-    @player = Human.new(name)    
+    player.name = name    
     
     computer_names = ['Hal', 'R2D2', 'Data', 'C3PO', 'Watson']
-    @computer = Computer.new(computer_names.sample)
+    computer.name = computer_names.sample
 
     puts "Your computer opponent is #{computer.name}."
     puts "Here we go..."
     sleep (2.5) 
 
     begin #continue loop
-      @board = Board.new
+      board = Board.new
+      
       begin #game loop
         board.draw
+        
         board.status[player.make_move(board.remaining_options)] = 'X'
         board.draw
+        
         winner = board.check_winner(board.status)
+
         board.status[computer.make_move(board.status, board.remaining_options)] = 'O' if winner == nil
         board.draw
+        
         winner = board.check_winner(board.status)
       end while winner == nil
+
       update_score(winner)
       puts result_message(winner)
-      puts "Player: #{@score[:player]} -- Computer: #{@score[:computer]} -- Ties: #{@score[:tie]}"
+      puts "Player: #{score[:player]} -- Computer: #{score[:computer]} -- Ties: #{score[:tie]}"
+      
       puts "Do you want to play again? (y/n)"
       continue = gets.chomp
     end while continue.downcase == 'y'
   end 
 end
 
-game = Game.new.play
+Game.new.play
