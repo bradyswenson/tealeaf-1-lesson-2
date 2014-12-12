@@ -33,10 +33,6 @@ class Board
   end
 end
 
-class Square
-  
-end
-
 class Player
   attr_reader :name
 
@@ -45,6 +41,39 @@ class Player
   end
 end
 
+class Computer < Player
+  def make_move
+    Board::WINNING_COMBOS.each do |combo|
+    if Board::status[combo[0]] == 'O' and Board::status[combo[1]] == 'O' and Board::status[combo[2]] == ' '
+        return combo[2]
+    elsif Board::status[combo[1]] == 'O' and Board::status[combo[2]] == 'O' and Board::status[combo[0]] == ' '
+        return combo[0]
+    elsif Board::status[combo[0]] == 'O' and Board::status[combo[2]] == 'O' and Board::status[combo[1]] == ' '
+        return combo[1]
+    elsif Board::status[combo[0]] == 'X' and Board::status[combo[1]] == 'X' and Board::status[combo[2]] == ' '
+        return combo[2]
+    elsif Board::status[combo[1]] == 'X' and Board::status[combo[2]] == 'X' and Board::status[combo[0]] == ' '
+        return combo[0]
+    elsif Board::status[combo[0]] == 'X' and Board::status[combo[2]] == 'X' and Board::status[combo[1]] == ' '
+        return combo[1]
+    end
+  end
+  if Board::status[5] == ' '
+    return 5
+  else
+    return Board.remaining_options(b).sample
+  end
+  end
+end
+
+class Human < Player
+  def make_move
+    begin 
+      puts "Please choose an unfilled position (1-9) to place your X:"
+      player_choice = gets.chomp.to_i
+    end until remaining_options(board).include?(player_choice)
+  end
+end
 
 class Game
   attr_reader :player, :computer, :board
@@ -74,7 +103,7 @@ class Game
     puts "Welcome to Tic Tac Toe."
     puts "What's your name?"
     name = gets.chomp
-    @human = Player.new(name)    
+    @player = Human.new(name)    
     
     computer_names = ['Hal', 'R2D2', 'Data', 'C3PO', 'Watson']
     @computer = Computer.new(computer_names.sample)
