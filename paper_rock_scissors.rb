@@ -43,7 +43,7 @@ class Player
     @name = name
   end
 
-  def selected_value_to_s
+  def selected_value
     "#{name} chose #{Game::CHOICES[self.hand.value]}"
   end
 end
