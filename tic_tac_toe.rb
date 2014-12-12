@@ -118,11 +118,11 @@ class Game
   def result_message(winner)
     case winner
     when 'Player'
-      return "#{player.name} wins!"
+      "#{player.name} wins!"
     when 'Computer'
-      return "#{computer.name} wins!"
+      "#{computer.name} wins!"
     when 'Tie'
-      return "It's a tie!"
+      "It's a tie!"
     end
   end
 
