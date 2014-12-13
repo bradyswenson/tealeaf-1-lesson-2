@@ -48,12 +48,21 @@ module Hand
     cards << new_card
   end
 
-  def draw_hand
+  def draw_hand(hide_dealer_card = false)
   line1 = ""
   line2 = ""
   line3 = ""
   line4 = ""
-  cards.each do |card|
+  counter = 0
+  cards.each do |card| 
+    if (counter == 0 && hide_dealer_card)
+      line1 << "┌───┐ "
+      line2 << "│ ? │ "
+      line3 << "│ ? │ "
+      line4 << "└───┘ " 
+      counter += 1  
+      next   
+    end
     if card.value.length == 1
       line1 << "┌───┐ "
       line2 << "│ #{card.value} │ "
@@ -64,14 +73,13 @@ module Hand
       line2 << "│ #{card.value}│ "
       line3 << "│ #{card.suit} │ "
       line4 << "└───┘ "
-    end     
+    end  
   end
   puts line1
   puts line2
   puts line3
   puts line4
-end
-
+  end
 end
 
 class Player
@@ -118,15 +126,16 @@ class Blackjack
     player.add_card(deck.deal_one)
     player.add_card(deck.deal_one)
     player.add_card(deck.deal_one)
-    puts player.cards
-    player.draw_hand
 
     dealer = Dealer.new
     dealer.add_card(deck.deal_one)
     dealer.add_card(deck.deal_one)
     dealer.add_card(deck.deal_one)
     dealer.add_card(deck.deal_one)
-    dealer.draw_hand
+    
+    dealer.draw_hand(hide_dealer_card = true)  
+    player.draw_hand
+
   end
 
 end
