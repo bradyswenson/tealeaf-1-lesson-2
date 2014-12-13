@@ -99,8 +99,8 @@ class Game
       system 'clear'
       player.pick_hand
       computer.pick_hand
-      puts player.selected_value_to_s
-      puts computer.selected_value_to_s
+      puts player.selected_value
+      puts computer.selected_value
       compare_hands
       puts "Do you want to play again? (y/n)"
       continue = gets.chomp
@@ -109,5 +109,5 @@ class Game
   end
 end
 
-game = Game.new.play
+Game.new.play
   

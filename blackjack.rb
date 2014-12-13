@@ -9,7 +9,7 @@ class Card
   end
 
   def to_s
-    "The card is a #{value} of #{suit}"
+    "#{value}#{suit}"
   end
 end
 
@@ -22,6 +22,13 @@ class Deck
       ['2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K', 'A'].each do |face_value|
         @cards << Card.new(suit, face_value)
       end
+    end
+  end
+
+  def print
+    cards.each do |card|
+      puts card.suit
+      puts card.value
     end
   end
 
@@ -43,21 +50,25 @@ class Dealer
 end
 
 class Blackjack
-  attr_accessor :player, :dealer, :Deck
+  attr_accessor :player, :dealer, :deck
 
   def initialize
     @player = Player.new
+    @dealer = Dealer.new
+    @deck = Deck.new
 
   end
 
-  def run
-    deal_cards
-    show_flow
-    player_turn
-    dealer_turn
-    who_won?
+  def play
+    deck.scramble!
+    deck.print
+    # deal_cards
+    # show_flow
+    # player_turn
+    # dealer_turn
+    # who_won?
   end
 
 end
 
-Blackjack.new.run
+Blackjack.new.play
