@@ -1,5 +1,7 @@
 #Blackjack object oriented
 
+require 'pry'
+
 class Card
   attr_accessor :suit, :value
 
@@ -139,38 +141,25 @@ class Blackjack
 
   end
 
-  def draw_table(dealer, player, final = false) 
+  def draw_table(final = false) 
     system 'clear'
-    case final
-    when false
-      dealer.draw_hand(hide_dealer_card = true)  
-      player.draw_hand
-      puts "You have #{player.hand_total}. Dealer showing #{dealer.hand_total(hide_dealer_card = true)}."
-      puts ""
-    when true
-      dealer.draw_hand(hide_dealer_card = false)  
-      player.draw_hand
-      puts "You have #{player.hand_total}. Dealer has #{dealer.hand_total(hide_dealer_card = false)}."
-      puts ""
-    end      
+    dealer.draw_hand(final)
+    player.draw_hand
+    puts "You have #{player.hand_total}. Dealer #{final ? 'has' : 'showing'} #{dealer.hand_total(final)}."
+    puts ""
   end
 
   def play
     deck = Deck.new
 
-    player = Player.new("Brady")
-    dealer = Dealer.new
     player.add_card(deck.deal_one)
     dealer.add_card(deck.deal_one)
     
     player.add_card(deck.deal_one)
     dealer.add_card(deck.deal_one)
     
-    draw_table(dealer, player, final = true)
-  
-
+    draw_table(final = true)
   end
-
 end
 
 Blackjack.new.play
