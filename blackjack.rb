@@ -53,14 +53,12 @@ module Hand
   line2 = ""
   line3 = ""
   line4 = ""
-  counter = 0
-  cards.each do |card| 
-    if (counter == 0 && hide_dealer_card)
+  cards.each_with_index do |card, index| 
+    if (index == 0 && hide_dealer_card)
       line1 << "┌───┐ "
       line2 << "│ ? │ "
       line3 << "│ ? │ "
       line4 << "└───┘ " 
-      counter += 1  
       next   
     end
     if card.value.length == 1
@@ -80,6 +78,29 @@ module Hand
   puts line3
   puts line4
   end
+
+ def hand_total(hide_dealer_card = false)
+    values = cards.map{|card| card.value }
+
+    total = 0
+    values.each_with_index do |value, index|
+      next if (index == 0 && hide_dealer_card)
+      if value == "A"
+        total += 11
+      else
+        total += (value.to_i == 0 ? 10 : value.to_i)
+      end
+    end
+
+    #correct for Aces
+    values.select{|value| value == "A"}.count.times do
+      break if total <= 21
+      total -= 10
+    end
+
+    total
+  end
+
 end
 
 class Player
@@ -118,23 +139,35 @@ class Blackjack
 
   end
 
+  def draw_table(dealer, player, final = false) 
+    system 'clear'
+    case final
+    when false
+      dealer.draw_hand(hide_dealer_card = true)  
+      player.draw_hand
+      puts "You have #{player.hand_total}. Dealer showing #{dealer.hand_total(hide_dealer_card = true)}."
+      puts ""
+    when true
+      dealer.draw_hand(hide_dealer_card = false)  
+      player.draw_hand
+      puts "You have #{player.hand_total}. Dealer has #{dealer.hand_total(hide_dealer_card = false)}."
+      puts ""
+    end      
+  end
+
   def play
     deck = Deck.new
 
-    player = Player.new("Chris")
-    player.add_card(deck.deal_one)
-    player.add_card(deck.deal_one)
-    player.add_card(deck.deal_one)
-    player.add_card(deck.deal_one)
-
+    player = Player.new("Brady")
     dealer = Dealer.new
-    dealer.add_card(deck.deal_one)
-    dealer.add_card(deck.deal_one)
-    dealer.add_card(deck.deal_one)
+    player.add_card(deck.deal_one)
     dealer.add_card(deck.deal_one)
     
-    dealer.draw_hand(hide_dealer_card = true)  
-    player.draw_hand
+    player.add_card(deck.deal_one)
+    dealer.add_card(deck.deal_one)
+    
+    draw_table(dealer, player, final = true)
+  
 
   end
 
