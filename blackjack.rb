@@ -20,19 +20,12 @@ class Deck
 
   def initialize()
     @cards = []
-    ['♠', '♥', '♦', '♣'].each do |suit|
+    ['♠', "\e[31m♥\e[0m", "\e[31m♦\e[0m", '♣'].each do |suit|
       ['2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K', 'A'].each do |face_value|
         @cards << Card.new(suit, face_value)
       end
     end
     cards.shuffle!
-  end
-
-  def print
-    cards.each do |card|
-      puts card.suit
-      puts card.value
-    end
   end
 
   def deal_one
@@ -58,8 +51,8 @@ module Hand
   cards.each_with_index do |card, index| 
     if (index == 0 && hide_dealer_card)
       line1 << "┌───┐ "
-      line2 << "│ ? │ "
-      line3 << "│ ? │ "
+      line2 << "│ * │ "
+      line3 << "│ * │ "
       line4 << "└───┘ " 
       next   
     end
@@ -81,7 +74,7 @@ module Hand
   puts line4
   end
 
- def hand_total(hide_dealer_card = false)
+  def hand_total(hide_dealer_card = false)
     values = cards.map{|card| card.value }
 
     total = 0
@@ -103,17 +96,36 @@ module Hand
     total
   end
 
+  def blackjack?
+    true if hand_total == 21 and cards.size == 2
+  end
+
+  def bust?
+    true if hand_total > 21 or hand_total[1] > 21
+  end
+
 end
 
 class Player
   include Hand
 
-  attr_accessor :name, :cards
+  attr_accessor :name, :cards, :money
 
   def initialize(name)
     @name = name
     @cards = []
+    @money = 1000
   end
+
+  def get_choice
+  end
+
+  def make_bet
+    puts "You have $#{money}. How much do you want to bet?"
+    bet = gets.chomp
+
+  end
+
 
 end
 
@@ -141,11 +153,11 @@ class Blackjack
 
   end
 
-  def draw_table(final = false) 
+  def draw_table(hide_dealer_card = true) 
     system 'clear'
-    dealer.draw_hand(final)
+    dealer.draw_hand(hide_dealer_card)
     player.draw_hand
-    puts "You have #{player.hand_total}. Dealer #{final ? 'showing' : 'has'} #{dealer.hand_total(final)}."
+    puts "You have #{player.hand_total}. Dealer #{hide_dealer_card ? 'showing' : 'has'} #{dealer.hand_total(hide_dealer_card)}."
     puts ""
   end
 
@@ -158,7 +170,13 @@ class Blackjack
     player.add_card(deck.deal_one)
     dealer.add_card(deck.deal_one)
     
-    draw_table(final = true)
+    draw_table(hide_dealer_card = true)
+
+    # puts "Player blackjack!" if player.blackjack?
+    # puts "Dealer blackjack!" if dealer.blackjack?
+    # puts "Player bust!" if player.bust?
+    # puts "Dealer bust!" if dealer.bust?
+
   end
 end
 
