@@ -145,7 +145,7 @@ class Blackjack
     system 'clear'
     dealer.draw_hand(final)
     player.draw_hand
-    puts "You have #{player.hand_total}. Dealer #{final ? 'has' : 'showing'} #{dealer.hand_total(final)}."
+    puts "You have #{player.hand_total}. Dealer #{final ? 'showing' : 'has'} #{dealer.hand_total(final)}."
     puts ""
   end
 
