@@ -101,7 +101,7 @@ module Hand
   end
 
   def bust?
-    true if hand_total > 21 or hand_total[1] > 21
+    true if hand_total > 21
   end
 
 end
@@ -109,21 +109,25 @@ end
 class Player
   include Hand
 
-  attr_accessor :name, :cards, :money
+  attr_accessor :name, :cards, :money, :bet
 
   def initialize(name)
     @name = name
     @cards = []
     @money = 1000
+    @bet = 0
   end
 
-  def get_choice
+  def turn
+
   end
 
   def make_bet
-    puts "You have $#{money}. How much do you want to bet?"
-    bet = gets.chomp
-
+    begin
+    puts "You have $#{money}. How much do you want to bet (1-#{money})?"
+    get_bet = gets.chomp.to_i
+    end until get_bet.between?(1, money)
+    self.bet = get_bet
   end
 
 
@@ -137,6 +141,9 @@ class Dealer
   def initialize
     @name = "Dealer"
     @cards = []
+  end
+
+  def turn
   end
 
 end
@@ -161,8 +168,33 @@ class Blackjack
     puts ""
   end
 
+  def settle_bet
+
+  end
+
+  #make a check winner method to return player, dealer or tie and use that for end_message settle_bet
+  def end_message
+    if dealer.blackjack?
+      message = "You lost. Better luck next hand #{player_name}."
+    elsif  player.blackjack?
+      message = "Blackjack! You win!"    
+    elsif player.bust?
+      message = "Sorry #{player_name}, you busted."
+    elsif dealer.bust?
+      message = "Dealer busted. You win!"
+    elsif player.hand_total > dealer.hand_total
+      message = "You win, #{player_name}!"
+    elsif dealer.hand_total > player.hand_total
+      message = "You lose."
+    elsif player.hand_total == dealer.hand_total
+      message = "Push."
+    end
+  end   
+
   def play
     deck = Deck.new
+
+    player.make_bet
 
     player.add_card(deck.deal_one)
     dealer.add_card(deck.deal_one)
@@ -171,6 +203,39 @@ class Blackjack
     dealer.add_card(deck.deal_one)
     
     draw_table(hide_dealer_card = true)
+
+    
+    if !player.blackjack? and !dealer.blackjack?
+      begin
+
+        begin 
+          puts "Stay or Hit? (S/H)"
+          choice = gets.chomp
+        end until choice.downcase == 's' || choice.downcase == 'h'
+
+        if choice == 'h'
+          player.add_card(deck.deal_one)
+          draw_table(hide_dealer_card = true)
+        end
+
+      end until choice == 's' || player.bust?
+
+      if !player.bust?
+        if dealer.hand_total < 17 #use ace total to make dealer stand on soft 17
+          begin 
+              dealer.add_card(deck.deal_one)
+              draw_table(hide_dealer_card = false)
+          end until dealer.hand_total >= 17 
+        end
+      end 
+
+    end
+
+
+
+    puts "#{end_message}" 
+
+
 
     # puts "Player blackjack!" if player.blackjack?
     # puts "Dealer blackjack!" if dealer.blackjack?
