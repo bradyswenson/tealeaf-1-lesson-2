@@ -1,6 +1,5 @@
 #Blackjack object oriented
-
-require 'pry'
+#require 'pry'
 
 class Card
   attr_accessor :suit, :value
@@ -18,7 +17,7 @@ end
 class Deck
   attr_accessor :cards
 
-  def initialize()
+  def initialize
     @cards = []
     ['♠', "\e[31m♥\e[0m", "\e[31m♦\e[0m", '♣'].each do |suit|
       ['2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K', 'A'].each do |face_value|
@@ -111,25 +110,21 @@ class Player
 
   attr_accessor :name, :cards, :money, :bet
 
-  def initialize(name)
-    @name = name
+  def initialize
+    @name = ""
     @cards = []
-    @money = 1000
+    @money = 100
     @bet = 0
   end
 
-  def turn
-
-  end
-
   def make_bet
+    system 'clear'
     begin
-    puts "You have $#{money}. How much do you want to bet (1-#{money})?"
+    puts "You have $#{self.money}. How much do you want to bet (1-#{self.money})?"
     get_bet = gets.chomp.to_i
     end until get_bet.between?(1, money)
     self.bet = get_bet
   end
-
 
 end
 
@@ -148,100 +143,129 @@ class Dealer
 
 end
 
-
-
 class Blackjack
   attr_accessor :player, :dealer, :deck
 
   def initialize
-    @player = Player.new("Brady")
+    @player = Player.new
     @dealer = Dealer.new
     @deck = Deck.new
-
   end
 
   def draw_table(hide_dealer_card = true) 
     system 'clear'
+    puts "=== DEALER ==="
     dealer.draw_hand(hide_dealer_card)
+    puts ""
+    puts "=== #{player.name.upcase} ==="
     player.draw_hand
-    puts "You have #{player.hand_total}. Dealer #{hide_dealer_card ? 'showing' : 'has'} #{dealer.hand_total(hide_dealer_card)}."
+    puts ""
+    puts "Your bet is $#{player.bet}. You have #{player.hand_total}. Dealer #{hide_dealer_card ? 'showing' : 'has'} #{dealer.hand_total(hide_dealer_card)}."
     puts ""
   end
 
   def settle_bet
-
+    if player.hand_total == dealer.hand_total 
+      player.money
+    elsif dealer.blackjack? or player.bust?
+      player.money = player.money - player.bet
+    elsif player.blackjack? 
+      player.money = player.money + (player.bet * 2)
+    elsif (player.hand_total > dealer.hand_total) or dealer.bust?
+      player.money = player.money + player.bet
+    elsif dealer.hand_total > player.hand_total
+      player.money = player.money - player.bet
+    end
   end
 
   #make a check winner method to return player, dealer or tie and use that for end_message settle_bet
   def end_message
     if dealer.blackjack?
-      message = "You lost. Better luck next hand #{player_name}."
+      "Dealer blackjack. Better luck next hand #{player.name}."
     elsif  player.blackjack?
-      message = "Blackjack! You win!"    
+      "Blackjack! You win 2x your bet!"    
     elsif player.bust?
-      message = "Sorry #{player_name}, you busted."
+      "Sorry #{player.name}, you busted."
     elsif dealer.bust?
-      message = "Dealer busted. You win!"
+      "Dealer busted. You win!"
     elsif player.hand_total > dealer.hand_total
-      message = "You win, #{player_name}!"
+      "You win, #{player.name}!"
     elsif dealer.hand_total > player.hand_total
-      message = "You lose."
+      "You lose."
     elsif player.hand_total == dealer.hand_total
-      message = "Push."
+      "Push."
     end
   end   
 
   def play
-    deck = Deck.new
+    system 'clear'
+    puts "Welcome to the Blackjack table. What's your first name?"
+    player.name = gets.chomp
 
-    player.make_bet
+    puts "Thanks for playing, #{player.name}. Good luck. Here we go..."
+    sleep (1.5)
 
-    player.add_card(deck.deal_one)
-    dealer.add_card(deck.deal_one)
-    
-    player.add_card(deck.deal_one)
-    dealer.add_card(deck.deal_one)
-    
-    draw_table(hide_dealer_card = true)
+    begin #continue loop
 
-    
-    if !player.blackjack? and !dealer.blackjack?
-      begin
+      player.cards = []
+      dealer.cards = []
 
-        begin 
-          puts "Stay or Hit? (S/H)"
-          choice = gets.chomp
-        end until choice.downcase == 's' || choice.downcase == 'h'
+      player.make_bet
 
-        if choice == 'h'
-          player.add_card(deck.deal_one)
-          draw_table(hide_dealer_card = true)
-        end
+      player.add_card(deck.deal_one)
+      dealer.add_card(deck.deal_one)
+      
+      player.add_card(deck.deal_one)
+      dealer.add_card(deck.deal_one)
+      
+      draw_table(hide_dealer_card = true)
+      
+      if !player.blackjack? and !dealer.blackjack?
+        begin
 
-      end until choice == 's' || player.bust?
-
-      if !player.bust?
-        if dealer.hand_total < 17 #use ace total to make dealer stand on soft 17
           begin 
-              dealer.add_card(deck.deal_one)
-              draw_table(hide_dealer_card = false)
-          end until dealer.hand_total >= 17 
-        end
-      end 
+            puts "Stay or Hit? (s/h)"
+            choice = gets.chomp
+          end until choice.downcase == 's' || choice.downcase == 'h'
 
-    end
+          if choice == 'h'
+            player.add_card(deck.deal_one)
+            draw_table(hide_dealer_card = true)
+          end
 
+        end until choice == 's' || player.bust?
 
+        if !player.bust?
+          if dealer.hand_total < 17 #use ace total to make dealer stand on soft 17
+            begin 
+                dealer.add_card(deck.deal_one)
+                draw_table(hide_dealer_card = false)
+            end until dealer.hand_total >= 17 
+          end
+        end 
 
-    puts "#{end_message}" 
+      end
 
+      draw_table(hide_dealer_card = false)
 
+      player.money = settle_bet
 
-    # puts "Player blackjack!" if player.blackjack?
-    # puts "Dealer blackjack!" if dealer.blackjack?
-    # puts "Player bust!" if player.bust?
-    # puts "Dealer bust!" if dealer.bust?
+      puts end_message 
+      puts "You have $#{player.money}.\n\n"
 
+      if player.money == 0
+        puts "You've lost everything."
+        break
+      elsif deck.size < 15
+        self.deck = Deck.new
+        puts "Time for a new deck..."
+        sleep (2.2)
+      end
+
+      puts "Do you want to play again? (y/n)"
+      continue = gets.chomp
+
+    end while continue.downcase == 'y'
   end
 end
 
