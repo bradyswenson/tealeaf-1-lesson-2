@@ -137,10 +137,6 @@ class Dealer
     @name = "Dealer"
     @cards = []
   end
-
-  def turn
-  end
-
 end
 
 class Blackjack
