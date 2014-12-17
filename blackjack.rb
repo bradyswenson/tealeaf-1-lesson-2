@@ -152,12 +152,11 @@ class Blackjack
     system 'clear'
     puts "=== DEALER ==="
     dealer.draw_hand(hide_dealer_card)
-    puts ""
-    puts "=== #{player.name.upcase} ==="
+    puts "\n=== #{player.name.upcase} ==="
     player.draw_hand
-    puts ""
-    puts "Your bet is $#{player.bet}. You have #{player.hand_total}. Dealer #{hide_dealer_card ? 'showing' : 'has'} #{dealer.hand_total(hide_dealer_card)}."
-    puts ""
+    table_info = "\nYour bet is $#{player.bet}. You have #{player.hand_total}. "\
+                 "Dealer #{hide_dealer_card ? 'showing' : 'has'} #{dealer.hand_total(hide_dealer_card)}.\n\n"
+    puts table_info
   end
 
   def settle_bet
