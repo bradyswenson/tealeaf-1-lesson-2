@@ -120,8 +120,8 @@ class Player
   def make_bet
     system 'clear'
     begin
-    puts "You have $#{self.money}. How much do you want to bet (1-#{self.money})?"
-    get_bet = gets.chomp.to_i
+      puts "You have $#{self.money}. How much do you want to bet (1-#{self.money})?"
+      get_bet = gets.chomp.to_i
     end until get_bet.between?(1, money)
     self.bet = get_bet
   end
@@ -216,8 +216,8 @@ class Blackjack
       
       draw_table(hide_dealer_card = true)
       
-      if !player.blackjack? and !dealer.blackjack?
-        begin
+      unless player.blackjack? and dealer.blackjack?
+        begin #player turn loop
 
           begin 
             puts "Stay or Hit? (s/h)"
@@ -231,8 +231,8 @@ class Blackjack
 
         end until choice == 's' || player.bust?
 
-        if !player.bust?
-          if dealer.hand_total < 17 #use ace total to make dealer stand on soft 17
+        unless player.bust?
+          if dealer.hand_total < 17 
             begin 
                 dealer.add_card(deck.deal_one)
                 draw_table(hide_dealer_card = false)
